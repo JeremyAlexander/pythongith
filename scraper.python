@@ -1,0 +1,27 @@
+import json
+from urllib.request import urlopen
+import csv
+
+
+repo = input("Enter Github repository URL: ")
+apiIndex = repo.index("://") + 3
+repoAndApi = repo[:apiIndex] + "api." + repo[apiIndex:]
+repoIndex = repoAndApi.index(".com") + 4
+repoAdded = repoAndApi[:repoIndex] + "/repos" + repoAndApi[repoIndex:]
+if (repoAdded[len(repoAdded) - 1] != "/"):
+    repoAdded += '/'
+repoAdded += "commits"
+print("Scraping: " + repoAdded)
+url = urlopen(repoAdded)
+content = json.loads(url.read().decode("utf-8"))
+# print(content[1])
+
+with open('scraped.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(('Names', 'Emails'))
+    for commit in content:
+        writer.writerow((commit['commit']['author']['name'], commit['commit']['author']['email']))
+    csvfile.close()
+
+print('Done')
+	
